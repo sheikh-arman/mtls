@@ -1,1 +1,39 @@
-# mtls
+first create server.go and client.go
+then edit the etc/hosts file and add
+127.0.0.1   arman
+this will be used for ca authority.
+now use this command
+openssl req -newkey rsa:2048 -nodes -x509 -days 365 -out ca.crt -keyout ca.key
+give arman on Common Name
+this will create c.crt and ca.key
+
+now create the private key for server
+openssl genrsa -out server.key 2048
+
+now generate csr for server
+openssl req -new -key server.key -days 365 -out server.csr
+
+Now sign the csr using ca private key
+openssl x509  -req -in server.csr -CA certs/ca.crt -CAkey certs/ca.key -CAcreateserial -out server.crt -days 365 -sha256
+
+
+above commands are deprecated, new commands are,
+Run these command in **bash**
+
+#### Generating our rootCA file.
+- openssl req -newkey rsa:2048 -nodes -x509 -days 365 -out ca.crt -keyout ca.key -subj "/C=BD/ST=Dhaka/L=Dhaka/O=Appscode, Inc./CN=Appscode Root CA"
+
+#### Generating server certificate.
+- openssl genrsa -out server.key 2048
+- openssl req -new -key server.key -out server.csr -subj "/C=BD/ST=Dhaka/L=Dhaka/O=Appscode, Inc./CN=pritam"
+- echo "subjectAltName=DNS:arman" > altsubj.ext
+- openssl x509  -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 365 -sha256 -extfile altsubj.ext
+
+#### Generating the client certificate.
+- openssl genrsa -out client.key 2048
+- openssl req -new -key client.key -out client.csr -subj "/C=BD/ST=Dhaka/L=Dhaka/O=Appscode, Inc./CN=arman"
+- echo "subjectAltName=DNS:arman" > altsubj.ext
+- openssl x509  -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 365 -sha256 -extfile altsubj.ext
+
+
+NB: According to RFC 6125, If SAN is present then CN should not be checked.
