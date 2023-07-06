@@ -3,7 +3,10 @@
 package main
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -16,10 +19,21 @@ func main() {
 		fmt.Fprintf(writer, "hello world \n")
 	})
 
+	caCertFile, err := ioutil.ReadFile("/home/user/go/src/github.com/sheikh-arman/mtls/cert/ca.crt")
+	if err != nil {
+		log.Fatalf("error reading CA certificate: %v", err)
+	}
+	certPool := x509.NewCertPool()
+	certPool.AppendCertsFromPEM(caCertFile)
 	// serve on port 9090 of local host
 	server := http.Server{
 		Addr:    ":9090",
 		Handler: handler,
+		TLSConfig: &tls.Config{
+			ClientAuth: tls.RequireAndVerifyClientCert,
+			ClientCAs:  certPool,
+			MinVersion: tls.VersionTLS12,
+		},
 	}
 
 	/*	if err := server.ListenAndServe(); err != nil {
