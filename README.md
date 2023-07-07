@@ -1,17 +1,17 @@
-first create server.go and client.go
-then edit the etc/hosts file and add
-127.0.0.1   arman
-this will be used for ca authority.
-now use this command
-openssl req -newkey rsa:2048 -nodes -x509 -days 365 -out ca.crt -keyout ca.key
-give arman on Common Name
-this will create c.crt and ca.key
+first create server.go and client.go<br>
+then edit the etc/hosts file and add<br>
+127.0.0.1   arman<br>
+this will be used for ca authority.<br>
+now use this command<br>
+openssl req -newkey rsa:2048 -nodes -x509 -days 365 -out ca.crt -keyout ca.key<br>
+give arman on Common Name<br>
+this will create c.crt and ca.key<br>
 
-now create the private key for server
-openssl genrsa -out server.key 2048
+now create the private key for server<br>
+openssl genrsa -out server.key 2048<br>
 
-now generate csr for server
-openssl req -new -key server.key -days 365 -out server.csr
+now generate csr for server<br>
+openssl req -new -key server.key -days 365 -out server.csr<br>
 
 Now sign the csr using ca private key
 openssl x509  -req -in server.csr -CA certs/ca.crt -CAkey certs/ca.key -CAcreateserial -out server.crt -days 365 -sha256
